@@ -1,7 +1,8 @@
-# *** THIS LIBRARY IS CURRENTLY UNDER DEVELOPMENT ***
-Please do use it and report/fix any problems you find!
+The basics here work, but there is (at least) a known bug in doubly-nested duals (used for computing the third derivative).
 
-Once a good amount of test coverage is in place there will be numbered releases.
+Please do use it and report/fix any problems you find!  Conributions gratefully accepted!  (just keep consistent formatting, please.)
+
+Once a good amount of test coverage is in place I'll do numbered releases.
 
 ## cxxduals
 Template header library for nesting [dual numbers](http://en.wikipedia.org/wiki/Dual_number) in c++, akin to complex numbers, but &epsilon; is nilpotent.  Nesting provides hyperdual numbers, and hyperhyperdual numbers, etc...
@@ -49,7 +50,7 @@ See the examples in tests/* and examples/*
   - (&epsilon; * &epsilon;) = 1 (["double nunmber"](http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/other/) /
   ["split complex number"](http://en.wikipedia.org/wiki/Split-complex_number))
 - try to minimize subtractive cancellation within the library
-- support & test multi-precision container types
+- support & tests for multi-precision container types, ie [mpfr](http://www.holoborodko.com/pavel/mpfr)
 
 ## History
 This started as a dual-number class implementation by Jeff A. Pike found here: 

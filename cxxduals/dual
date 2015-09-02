@@ -452,51 +452,70 @@ epart(const dual<_Tp> & d)
 /* the c++11 way - maybe when back porting to older c++ can get rid of result_type */
 namespace internal {
 // restrict op types to help template libs (ie Eigen) use dual<>
-template <typename _Tp, typename _Up> struct presult_type {};
-template <typename _Tp> struct presult_type<_Tp, int> {
+template <typename _Tp, typename _Up> struct result_type {};
+template <typename _Tp> struct result_type<_Tp, int> {
   typedef dual<_Tp> dual_type;  // for operations that assign to a dual
   typedef bool comp_type;       // for operations that compare w a dual
   typedef unsigned res_type;    // for operations that take a value from a dual
 };
-template <typename _Tp> struct presult_type<_Tp, unsigned> {
+template <typename _Tp> struct result_type<_Tp, unsigned> {
   typedef dual<_Tp> dual_type;
   typedef bool comp_type;
   typedef unsigned res_type;
 };
-template <typename _Tp> struct presult_type<_Tp, float> {
+template <typename _Tp> struct result_type<_Tp, float> {
   typedef dual<_Tp> dual_type;
   typedef bool comp_type;
 };
-template <typename _Tp> struct presult_type<_Tp, double> {
+template <typename _Tp> struct result_type<_Tp, double> {
   typedef dual<_Tp> dual_type;
   typedef bool comp_type;
 };
-template <typename _Tp> struct presult_type<_Tp, long double> {
+template <typename _Tp> struct result_type<_Tp, long double> {
   typedef dual<_Tp> dual_type;
   typedef bool comp_type;
   typedef long double res_type;
 };
-template <typename _Tp, typename _Up> struct presult_type<_Tp, std::complex<_Up> > {
+template <typename _Tp, typename _Up> struct result_type<_Tp, std::complex<_Up> > {
   typedef dual<_Tp> dual_type;
   typedef bool comp_type;
 };
-template <typename _Tp, typename _Up> using result_type = presult_type<_Tp, _Up>;
-}
+
+} // namespace internal
+
 #define DUALH_DEFINE_BASIC_OP_TEMPLATES(OP)                     \
+  /* with same dual */                                          \
   template <typename _Tp>                                       \
   inline dual<_Tp>                                              \
   operator OP (const dual<_Tp> & lhs, const dual<_Tp> & rhs)    \
   {                                                             \
-    dual<_Tp> d = lhs;                                          \
+    dual<_Tp> d(lhs);                                           \
     d OP##= rhs;                                                \
     return d;                                                   \
   }                                                             \
-  /* down one */                                                \
+  /* nested down one */                                         \
+  template <typename _Tp>                                       \
+  inline dual<_Tp>                                              \
+  operator OP(const dual<_Tp> & lhs, const _Tp & rhs)           \
+  {                                                             \
+    dual<_Tp> d(lhs);                                           \
+    d OP##= rhs;                                                \
+    return d;                                                   \
+  }                                                             \
+  template <typename _Tp>                                       \
+  inline dual<_Tp>                                              \
+  operator OP(const _Tp & lhs, const dual<_Tp> & rhs)           \
+  {                                                             \
+    dual<_Tp> d(lhs);                                           \
+    d OP##= rhs;                                                \
+    return d;                                                   \
+  }                                                             \
+  /* with a basic type */                                       \
   template <typename _Tp, typename _Up>                         \
   inline typename internal::result_type<_Tp,_Up>::dual_type     \
   operator OP(const dual<_Tp> & lhs, const _Up & rhs)           \
   {                                                             \
-    dual<_Tp> d = lhs;                                          \
+    dual<_Tp> d(lhs);                                           \
     d OP##= rhs;                                                \
     return d;                                                   \
   }                                                             \
@@ -510,25 +529,10 @@ template <typename _Tp, typename _Up> using result_type = presult_type<_Tp, _Up>
   }
 #endif
 
-//@{
-///  Addition
 DUALH_DEFINE_BASIC_OP_TEMPLATES(+)
-//@}
-
-//@{
-///  Subtraction
 DUALH_DEFINE_BASIC_OP_TEMPLATES(-)
-//@}
-
-//@{
-///  Multiplication
 DUALH_DEFINE_BASIC_OP_TEMPLATES(*)
-//@}
-
-//@{
-///  Division
 DUALH_DEFINE_BASIC_OP_TEMPLATES(/)
-//@}
 
 #undef DUALH_DEFINE_BASIC_OP_TEMPLATES
 
@@ -538,13 +542,13 @@ DUALH_DEFINE_BASIC_OP_TEMPLATES(/)
   ;
 #endif
 
-// for += -= *= /= on non-dual numbers, only on certain types!
+// for += -= *= /= on non-dual numbers
 #define DUALH_DEFINE_NONDUAL_OP_TEMPLATE(OP)                    \
   template <typename _Tp, typename _Up>                         \
   inline typename internal::result_type<_Tp,_Up>::res_type      \
   operator OP (_Up & lhs, const dual<_Tp> & rhs)                \
   {                                                             \
-    lhs += rhs.rpart();                                         \
+    lhs OP rhs.rpart();                                         \
     return lhs;                                                 \
   }
 
@@ -552,10 +556,43 @@ DUALH_DEFINE_NONDUAL_OP_TEMPLATE(+=)
 DUALH_DEFINE_NONDUAL_OP_TEMPLATE(-=)
 DUALH_DEFINE_NONDUAL_OP_TEMPLATE(*=)
 DUALH_DEFINE_NONDUAL_OP_TEMPLATE(/=)
-
 #undef DUALH_DEFINE_NONDUAL_OP_TEMPLATE
 
 ///
+#if 0
+// fix emacs auto formatting below this point
+  ;
+#endif
+
+/// comparison
+#define DUALH_COMPARISON_OP(OP)                                 \
+  template <typename _Tp, typename _Up>                         \
+  inline bool                                                   \
+  operator OP (const dual<_Tp> & lhs, const dual<_Up> & rhs)    \
+  {                                                             \
+    return lhs.rpart() OP rhs.rpart();                          \
+  }                                                             \
+  template <typename _Tp, typename _Up>                         \
+  inline typename internal::result_type<_Tp,_Up>::comp_type     \
+  operator OP (const dual<_Tp> & lhs, const _Up & rhs)          \
+  {                                                             \
+    return lhs.rpart() OP rhs;                                  \
+  }                                                             \
+  template <typename _Tp, typename _Up>                         \
+  inline typename internal::result_type<_Tp,_Up>::comp_type     \
+  operator OP (const _Up & lhs, const dual<_Tp> & rhs)          \
+  {                                                             \
+    return lhs OP rhs.rpart();                                  \
+  }
+
+DUALH_COMPARISON_OP(>)
+DUALH_COMPARISON_OP(<)
+DUALH_COMPARISON_OP(==)
+DUALH_COMPARISON_OP(>=)
+DUALH_COMPARISON_OP(<=)
+DUALH_COMPARISON_OP(!=)
+#undef DUALH_COMPARISON_OP
+
 #if 0
 // fix emacs auto formatting below this point for me
   ;
@@ -563,59 +600,40 @@ DUALH_DEFINE_NONDUAL_OP_TEMPLATE(/=)
 
 template <typename _Tp, typename _Up>
 dual<_Tp>
+pow(const dual<_Tp> & xx, const dual<_Up> & yy)
+{
+  using std::log;
+  using std::pow;
+  dual<_Tp> temp(pow(xx.rpart(), yy.rpart()),
+                 pow(xx.rpart(), yy.rpart()) * yy.epart() * log(xx.rpart())
+               + pow(xx.rpart(), yy.rpart() - _Tp(1)) * yy.rpart() * xx.epart());
+  return temp;
+}
+template <typename _Tp, typename _Up>
+typename internal::result_type<_Tp,_Up>::dual_type
 pow(const dual<_Tp> & xx, const _Up & aa)
 {
   using std::pow;
-  using std::abs;
-  using std::exp;
   dual<_Tp> temp;
-#if 0
-  _Tp deriv, xval, tol;
-  xval = xx.rpart();
-  // TODO- should use numeric traits of _Tp instead of 1e-15
-  tol = _Tp(1e-15);
-  if (abs(xval) > 0 && abs(xval) < abs(tol)) {
-    xval = xx.rpart() / (abs(xx.rpart()) / tol);
-    //if (xval >= 0)
-    //  xval = tol;
-    //if (xval < 0)
-    //  xval = -tol;
-  }
-  deriv = aa * pow(xval, (aa - _Tp(1.0)));
-  temp.rpart() = pow(xx.rpart(), aa);  //Use actual x value, only use tol for derivs
-  temp.epart() = xx.epart() * deriv;
-#else
-  //return exp(xx * dual<_Tp>(log(aa)));
   temp.rpart() = pow(xx.rpart(), aa);
-  temp.epart() = xx.epart() * aa * pow(xx.rpart(), aa - _Up(1));
-#endif
+  temp.epart() = xx.epart() * _Tp(aa) * pow(xx.rpart(), aa - _Up(1));
   return temp;
 }
 #if 1
-template <typename _Tp>
-dual<_Tp>
-pow(const _Tp & aa, const dual<_Tp> & xx)
+template <typename _Tp, typename _Up>
+typename internal::result_type<_Tp,_Up>::dual_type
+pow(const _Up & aa, const dual<_Tp> & xx)
 {
   using std::pow;
   using std::log;
-  using std::exp;
 #if 0
-  return exp(xx * log(aa));
-#else
-  dual<_Tp> temp;
-  temp.rpart() = pow(aa, xx.rpart());
-  temp.epart() = xx.epart() * pow(aa, xx.rpart()) * log(aa);
+  dual<_Tp> temp(pow(aa, xx.rpart()),
+                 pow(aa, xx.rpart()) * log(aa));
   return temp;
+#else
+  dual<_Tp> temp(aa);
+  return pow(temp, xx);
 #endif
-}
-
-template <typename _Tp>
-dual<_Tp>
-pow(const dual<_Tp> & xx, const dual<_Tp> & yy)
-{
-  using std::log;
-  using std::exp;
-  return exp(yy * log(xx));
 }
 #endif
 //template <typename _Tp> dual<_Tp> pow(dual<_Tp> x, dual<_Tp> a) {
@@ -623,18 +641,17 @@ pow(const dual<_Tp> & xx, const dual<_Tp> & yy)
 //}
 
 template <typename _Tp>
-dual<_Tp>
+inline dual<_Tp>
 exp(const dual<_Tp> & x)
 {
   using std::exp;
-  _Tp deriv;
-  deriv = exp(x.rpart());
+  _Tp deriv(exp(x.rpart()));
   return dual<_Tp>(deriv, deriv * x.epart());
 }
 
 template <typename _Tp>
-dual<_Tp>
-log(dual<_Tp> x)
+inline dual<_Tp>
+log(const dual<_Tp> & x)
 {
   using std::log;
   _Tp deriv1;
@@ -644,7 +661,7 @@ log(dual<_Tp> x)
 
 template <typename _Tp>
 inline dual<_Tp>
-sin(dual<_Tp> x)
+sin(const dual<_Tp> & x)
 {
   using std::sin;
   using std::cos;
@@ -659,7 +676,7 @@ sin(dual<_Tp> x)
 
 template <typename _Tp>
 inline dual<_Tp>
-cos(dual<_Tp> x)
+cos(const dual<_Tp> & x)
 {
   using std::sin;
   using std::cos;
@@ -674,7 +691,7 @@ cos(dual<_Tp> x)
 
 template <typename _Tp>
 inline dual<_Tp>
-tan(dual<_Tp> x)
+tan(const dual<_Tp> & x)
 {
   dual<_Tp> temp;
   _Tp funval, deriv;
@@ -686,8 +703,8 @@ tan(dual<_Tp> x)
 }
 
 template <typename _Tp>
-dual<_Tp>
-asin(dual<_Tp> x)
+inline dual<_Tp>
+asin(const dual<_Tp> & x)
 {
   using std::asin;
   using std::sqrt;
@@ -703,8 +720,8 @@ asin(dual<_Tp> x)
 
 #if 0
 template <typename _Tp>
-dual<_Tp>
-acos(dual<_Tp> x)
+inline dual<_Tp>
+acos(const dual<_Tp> & x)
 {
   using std::acos;
   using std::sqrt;
@@ -720,8 +737,8 @@ acos(dual<_Tp> x)
 #endif
 
 template <typename _Tp>
-dual<_Tp>
-atan(dual<_Tp> x)
+inline dual<_Tp>
+atan(const dual<_Tp> & x)
 {
   using std::atan;
   dual<_Tp> temp;
@@ -735,8 +752,8 @@ atan(dual<_Tp> x)
 }
 
 template <typename _Tp>
-dual<_Tp>
-atan2(dual<_Tp> y, dual<_Tp> x)
+inline dual<_Tp>
+atan2(const dual<_Tp> & y, const dual<_Tp> & x)
 {
   using std::atan2;
   dual<_Tp> temp;
@@ -751,23 +768,23 @@ atan2(dual<_Tp> y, dual<_Tp> x)
 }
 
 template <typename _Tp>
-dual<_Tp>
-sqrt(dual<_Tp> x)
+inline dual<_Tp>
+sqrt(const dual<_Tp> & x)
 {
   using std::pow;
   return pow(x, _Tp(0.5));
 }
 
 template <typename _Tp>
-dual<_Tp>
-max(dual<_Tp> x1, dual<_Tp> x2)
+inline dual<_Tp>
+max(const dual<_Tp> & x1, const dual<_Tp> & x2)
 {
   return x1.rpart() >= x2.rpart() ? x1 : x2;
 }
 
 template <typename _Tp>
-dual<_Tp>
-max(dual<_Tp> x1, _Tp x2)
+inline dual<_Tp>
+max(const dual<_Tp> & x1, _Tp x2)
 {
   return x1.rpart() >= x2 ? x1 : dual<_Tp>(x2);
 }
@@ -829,13 +846,21 @@ imag(const dual<_Tp> & x)
   return dual<_Tp>(imag(x.rpart()), imag(x.epart()));
 }
 
+namespace internal {
+template <typename _Tp> struct abs_ret;
+template <typename _Tp> struct abs_ret { typedef _Tp type; };
+template <typename _Tp> struct abs_ret<std::complex<_Tp> > { typedef _Tp type; };
+}
+
 template <typename _Tp>
-inline dual<_Tp>
+inline dual<typename internal::abs_ret<_Tp>::type >
 abs(const dual<_Tp> & x)
 {
+  typedef typename internal::abs_ret<_Tp>::type ret_type;
   using std::abs;
   // wrong for complex
-  return abs(x.rpart()) == x.rpart() ? x : -x;
+  return dual<ret_type>(abs(r.rpart()),
+                        r.rpart() * r.epart() / abs(r.rpart()));
 }
 
 template <typename _Tp>
@@ -867,40 +892,6 @@ floor(const dual<_Tp> & x)
                    ? std::numeric_limits<_Tp>::infinity()
                    : _Tp(0));
 }
-
-/// comparison
-#define DUALH_COMPARISON_OP(OP)                                 \
-  template <typename _Tp, typename _Up>                         \
-  inline bool                                                   \
-  operator OP (const dual<_Tp> & lhs, const dual<_Up> & rhs)    \
-  {                                                             \
-    return lhs.rpart() OP rhs.rpart();                          \
-  }                                                             \
-  template <typename _Tp, typename _Up>                         \
-  inline typename internal::result_type<_Tp,_Up>::comp_type     \
-  operator OP (const dual<_Tp> & lhs, const _Up & rhs)          \
-  {                                                             \
-    return lhs.rpart() OP rhs;                                  \
-  }                                                             \
-  template <typename _Tp, typename _Up>                         \
-  inline typename internal::result_type<_Tp,_Up>::comp_type     \
-  operator OP (const _Up & lhs, const dual<_Tp> & rhs)          \
-  {                                                             \
-    return lhs OP rhs.rpart();                                  \
-  }
-
-DUALH_COMPARISON_OP(>)
-DUALH_COMPARISON_OP(<)
-DUALH_COMPARISON_OP(==)
-DUALH_COMPARISON_OP(>=)
-DUALH_COMPARISON_OP(<=)
-DUALH_COMPARISON_OP(!=)
-
-#undef DUALH_COMPARISON_OP
-#if 0
-// fix emacs auto formatting below this point for me
-  ;
-#endif
 
 #if 0
 // TODO: group parts by e-index better

@@ -63,6 +63,10 @@ int main(int argc, char **argv)
 {
   duald x;
 
+  {
+    hyperduald hd;
+    hd = hd + x;
+  }
   x = {3,1};
 
   std::cout << "x=" << x << "\n";
