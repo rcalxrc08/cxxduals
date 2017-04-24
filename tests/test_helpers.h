@@ -41,8 +41,8 @@ bool expect_near(const UNOTYPE & A, const UNOTYPE & B)
 
   typename dual_trait_helper<UNOTYPE>::scalar_type
     //PREC = sqrt(std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon());
-    PREC = 1500.0 * std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon();
-
+    //PREC = 1500.0 * std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon();
+    PREC=0.000001;
   if (abs(A - B) < PREC)
     return true;
   if (abs(B) != 0 && abs(A - B)/abs(sqrt(A*A + B*B)) < PREC)

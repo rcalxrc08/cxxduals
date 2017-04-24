@@ -3,7 +3,11 @@
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/googletest/googletest/include)
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/googletest/googletest)
 add_library (gtest "googletest/googletest/src/gtest-all.cc")
-target_link_libraries (gtest)
+IF(UNIX)
+  target_link_libraries (gtest pthread)
+ELSEIF(WIN32)
+  target_link_libraries (gtest)
+ENDIF()
 
 # where to find cxxduals/dual
 include_directories (${CMAKE_SOURCE_DIR}/)

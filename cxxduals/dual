@@ -36,6 +36,13 @@
 #ifndef LIB_CXXDUALX
 #define LIB_CXXDUALS 1
 
+#ifdef WIN32
+#define POWFUNC cxxduals::pow
+#endif
+#ifdef __unix
+#define POWFUNC pow
+#endif
+
 #include <cmath>
 #include <ctgmath>
 #include <sstream>
@@ -948,7 +955,7 @@ dual<_Tp>
 sqrt(dual<_Tp> x)
 {
   DUAL_STD_MATH(sqrt);
-  return cxxduals::pow(x, _Tp(0.5));
+  return POWFUNC(x, _Tp(0.5));
   //return pow(x, (typename dual<_Tp>::scalar_type)0.5); xxx
 }
 

@@ -87,7 +87,7 @@ void equality()
   EXPECT_EQ(+abs(h), (Scalar)2.2);
   EXPECT_EQ(-abs(h), (Scalar)-2.2);
   DUALTYPE res{9.,6.};
-  DU_EXPECT_NEAR(cxxduals::pow(j,(Scalar)2.0), res);
+  DU_EXPECT_NEAR(POWFUNC(j,(Scalar)2.0), res);
   DUALTYPE res2{3., (Scalar)(0.5*pow(9,-0.5))};
   DU_EXPECT_NEAR(sqrt(l), res2 );
 }
@@ -173,11 +173,12 @@ void transcendental()
     Scalar x = ii / 5.0;
     DUALTYPE xx(ii / 5.0, 1);
     using std::pow;
+    using cxxduals::pow;
     // pow
     DUALTYPE res(pow(x,4), Scalar(4.) * (Scalar)pow(x,3));
     DU_EXPECT_NEAR(pow(xx,4), res);
     res = DUALTYPE(pow(3,x), pow((Scalar)3,x)*log((Scalar)3));
-    DU_EXPECT_NEAR(cxxduals::pow((Scalar)3.,xx), res);
+    DU_EXPECT_NEAR(POWFUNC((Scalar)3.,xx), res);
     //std::cerr << "x=" << x << " x^2 = " << pow(x,2) << "\n";
     //Scalar y =  pow(x,pow(x,2));
     //std::cerr << "x=" << x << " x^x^2 = " << y << "\n";
