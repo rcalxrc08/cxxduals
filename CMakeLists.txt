@@ -13,7 +13,11 @@ endif (NOT CMAKE_BUILD_TYPE)
 # Project Name
 #
 project (cxxduals CXX)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
+IF(WIN32)
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+ELSEIF(UNIX)
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
+ENDIF()
 include_directories(cxxduals)
 find_package (CUDA)
 if (CUDA_FOUND)

@@ -140,7 +140,7 @@ typedef dual<std::complex<float> > dualcf;
 typedef dual<std::complex<double> > dualcd;
 typedef dual<std::complex<long double> > dualcld;
 #endif // CXXDUALS_NO_COMPLEX
-//#if __cplusplus >= 201103L/**/
+#if __cplusplus >= 201103L
 template <class _Tp> using hyperdual = dual<dual<_Tp> >;
 typedef hyperdual<float> hyperdualf;
 typedef hyperdual<double> hyperduald;
@@ -149,9 +149,19 @@ typedef hyperdual<long double> hyperdualld;
 typedef hyperdual<std::complex<float> > hyperdualcf;
 typedef hyperdual<std::complex<double> > hyperdualcd;
 typedef hyperdual<std::complex<long double> > hyperdualcld;
-//#endif
 #endif
-
+#endif
+#ifdef WIN32
+template <class _Tp> using hyperdual = dual<dual<_Tp> >;
+typedef hyperdual<float> hyperdualf;
+typedef hyperdual<double> hyperduald;
+typedef hyperdual<long double> hyperdualld;
+#ifndef CXXDUALS_NO_COMPLEX
+typedef hyperdual<std::complex<float> > hyperdualcf;
+typedef hyperdual<std::complex<double> > hyperdualcd;
+typedef hyperdual<std::complex<long double> > hyperdualcld;
+#endif
+#endif
 #ifndef CXXDUALS_NO_LIMITS
 } // cxxduals
 

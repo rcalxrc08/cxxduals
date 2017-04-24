@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
   std::cout << "g*g = " << (g*g) << "\n";
   std::cout << "h*h = " << (h*h) << "\n";
   std::cout << "pow(f,2.0) = " << pow(f,2.0) << "\n";
-  std::cout << "pow(g,2.0) = " << pow(g,(complexd)2.0) << "\n";
+  std::cout << "pow(g,2.0) = " << POWFUNC(g,(complexd)2.0) << "\n";
   std::cout << "0.5*(9)^(-0.5) = " << 0.5 * std::sqrt(9) << "\n";
   std::cout << "0.5*(3+1i)^(-0.5) = " << 0.5 * std::pow(ax,-0.5) << "\n";
 
