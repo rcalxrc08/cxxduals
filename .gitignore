@@ -10,3 +10,4 @@ Testing/
 tests/gtest-1.7.0/
 tests/libgtest.a
 tests/test1
+/cmake-build-debug

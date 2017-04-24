@@ -1,16 +1,9 @@
 
-# gtest install
-add_custom_command (OUTPUT "gtest-1.7.0/src/gtest-all.cc"
-  COMMAND rm -f gtest-1.7.0.zip
-  COMMAND rm -fR gtest-1.7.0
-  COMMAND wget -O gtest-1.7.0.zip https://googletest.googlecode.com/files/gtest-1.7.0.zip
-  COMMAND unzip gtest-1.7.0.zip
-  COMMAND rm -f gtest-1.7.0.zip
-  )
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/gtest-1.7.0/include)
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/gtest-1.7.0)
-add_library (gtest "gtest-1.7.0/src/gtest-all.cc")
-target_link_libraries (gtest pthread)
+
+include_directories (${CMAKE_CURRENT_BINARY_DIR}/googletest/googletest/include)
+include_directories (${CMAKE_CURRENT_BINARY_DIR}/googletest/googletest)
+add_library (gtest "googletest/googletest/src/gtest-all.cc")
+target_link_libraries (gtest)
 
 # where to find cxxduals/dual
 include_directories (${CMAKE_SOURCE_DIR}/)

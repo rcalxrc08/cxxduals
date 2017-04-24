@@ -21,16 +21,16 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-#include "gtest/gtest.h"
 #include <iostream>
 #include <limits>
 #include <complex>
 #include <cmath>
 #include <cxxduals/dual>
+#include <tests/googletest/googletest/include/gtest/gtest.h>
 
 #include "test_helpers.h"
 
-using namespace cxxduals;
+//using namespace cxxduals;
 
 TEST(basic,hyperdual)
 {
@@ -115,11 +115,10 @@ fike_example1()
   pike_f1 f1;
   typedef dual<UNOTYPE> DUALTYPE;
   typedef dual<dual<UNOTYPE> > HDUALTYPE;
-  srand48(1);
-
+//  srand(1);
   for (int ii = 0; ii < reps; ii++) {
     // pick a random x
-    UNOTYPE x = drand48() * 10;
+    UNOTYPE x =  10;
     // calculate f, f' and f'' and f''' analytically at x
     UNOTYPE f = f1.f(x);
     UNOTYPE fp = f1.df(x);

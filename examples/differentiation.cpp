@@ -69,7 +69,6 @@ int main(int argc, char **argv)
   std::cout << "x=" << x << "\n";
   std::cout << "x*x=" << x*x << "\n";
   std::cout << "epart(x*x) = d(x*x)/dx = " << epart(x*x) << "\n";
-
   typedef double UNOTYPE;
   typedef dual<double> DUALTYPE;
   typedef dual<dual<double> > HDUALTYPE;
@@ -77,13 +76,13 @@ int main(int argc, char **argv)
   HDUALTYPE a(DUALTYPE(1,2),DUALTYPE(3,4));
   HDUALTYPE b(DUALTYPE(11,12),DUALTYPE(13,14));
   hyperdualcd c(dualcd(1,2),dualcd(3,4));
-  hyperdualcd d{1,2,3,{4,4}};
+//  hyperdualcd d/**/{1,2,3,{4,4}};
   std::cout << a << "\n"
             << b << "\n"
             << a+b << "\n"
             << a*b << "\n"
-            << c << "\n"
-            << d << "\n";
+            << c << "\n";
+//            << d << "\n";
 
   std::cout << "double<> depth:" << dual_trait_helper<double>::depth
             << " num_elem: " << dual_trait_helper<double>::num_elem
