@@ -3,7 +3,7 @@ Template header library for nesting [dual numbers](http://en.wikipedia.org/wiki/
 
 Also compiles under CUDA.
 
-[![Build Status](https://api.travis-ci.org/tesch1/cxxduals.svg?branch=master)](http://travis-ci.org/tesch1/cxxduals)
+[![Build Status](https://travis-ci.org/rcalxrc08/cxxduals.svg?branch=master)
 
 Using dual numbers in place of basic types provides a simple way to compute the derivative of a function, because:
 
